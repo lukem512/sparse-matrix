@@ -1,0 +1,3 @@
+valgrind ./matrix-debug stage1 ../test/set1-stage1.input 1 1
+valgrind ./matrix-debug stage2 ../output/stage2.output ../test/set1-stage1.input
+valgrind --leak-check=full ./matrix-debug stage5 ../output/stage5.output ../test/set1-stage5.input_0 ../test/set1-stage5.input_1 ../test/set1-stage5.input_2 ../test/set1-stage5.input_3 ../test/set1-stage5.input_4 ../test/set1-stage5.input_5 ../test/set1-stage5.input_6 ../test/set1-stage5.input_7

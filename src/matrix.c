@@ -10,9 +10,10 @@
 #include <sys/time.h>
 
 // TODO
+// * STAGE 5 DOESN'T WORK FOR TEST{1..5}.input
+// * lots of memory leaks (valgrind)
 // * redo Transpose to not use 'find' functions
 // * redo Product to not use 'find' functions
-// * time and test
 
 /* Matrix functions */
 
@@ -814,6 +815,9 @@ matrix* product_two_matrices (matrix* m1, matrix* m2) {
             // increment row pointer
             row = row->next;
         }
+
+        // free memory
+        destroy_ccs (col);
     }
 
     // return the product matrix
@@ -822,7 +826,7 @@ matrix* product_two_matrices (matrix* m1, matrix* m2) {
 
 // Used to extract the sequence with which to multiply
 // the matrix chain by. This returns a binary tree.
-tree_node* create_tree_from_seq(int** seq, int i, int j) {
+tree_node* create_tree_from_seq(int** seq, int i, int j, tree_node* parent) {
     tree_node* t;
     int k;
     
@@ -831,14 +835,17 @@ tree_node* create_tree_from_seq(int** seq, int i, int j) {
 
     if (t == NULL)
         return NULL;
+
+    // Add parent
+    t->parent = parent;
    
     // Recursively create subtrees
     if (i == j) {
         t->val = i;
     } else {
         k = seq[i][j];
-        t->left = create_tree_from_seq (seq, i, k);
-        t->right = create_tree_from_seq (seq, k+1, j);
+        t->left = create_tree_from_seq (seq, i, k, t);
+        t->right = create_tree_from_seq (seq, k+1, j, t);
     }
 
     // Return the tree node!
@@ -878,13 +885,11 @@ tree_node* optimal_matrix_chain (int p[], int n) {
         }
     }
 
-    // free ops
-    destroy_2d_int_array (ops, n);
-
     // construct tree from seq
-    t = create_tree_from_seq(seq, 0, n-1);
+    t = create_tree_from_seq(seq, 0, n-1, END_OF_LIST);
 
-    // free seq
+    // free arrays
+    destroy_2d_int_array (ops, n);
     destroy_2d_int_array (seq, n);
 
     // return the tree
@@ -940,6 +945,9 @@ void stage1( char* X_name, int r, int c ) {
 
     // output CSV values of column
     print_col_by_id (mat, c);
+
+    // free memory
+    destroy_matrix (mat);
 }
 
 /*
@@ -951,12 +959,14 @@ Perform stage 2:
 */
 
 void stage2( char* R_name, char* X_name ) {
+    matrix *mat, *tran;
+
     // TODO - remove debugging
     struct timeval tv1, tv2;
     gettimeofday(&tv1, NULL);
     
     // read the matrix from specified filename
-    matrix* mat = read_matrix_from_file (X_name);
+    mat = read_matrix_from_file (X_name);
 
     // check for errors
     if (mat == NULL) {
@@ -965,10 +975,14 @@ void stage2( char* R_name, char* X_name ) {
     }
 
     // transpose
-    mat = transpose_matrix (mat);
+    tran = transpose_matrix (mat);
 
     // output to file R_name
-    write_matrix_to_file (mat, R_name);
+    write_matrix_to_file (tran, R_name);
+
+    // free memory
+    destroy_matrix (mat);
+    destroy_matrix (tran);
     
     // TODO - remove debugging
     gettimeofday(&tv2, NULL); 
@@ -1005,6 +1019,11 @@ void stage3( char* R_name, char* X_name, char* Y_name ) {
 
     // output to file R_name
     write_matrix_to_file (sum, R_name);
+
+    // free memory
+    destroy_matrix (m1);
+    destroy_matrix (m2);
+    destroy_matrix (sum);
     
     // TODO - remove debugging
     gettimeofday(&tv2, NULL); 
@@ -1041,6 +1060,11 @@ void stage4( char* R_name, char* X_name, char* Y_name ) {
 
     // write result to file
     write_matrix_to_file (prod, R_name);
+
+    // free memory
+    destroy_matrix (m1);
+    destroy_matrix (m2);
+    destroy_matrix (prod);
 
     // TODO - remove debugging
     gettimeofday(&tv2, NULL); 
@@ -1103,6 +1127,10 @@ void stage5( char* R_name, char* X_name[], int l ) {
     // write result to file
     write_matrix_to_file (m, R_name);
 
+    // free memory
+    destroy_matrix (m);
+    destroy_tree (t);
+    free (p);
 
     // TODO - remove, debugging
     gettimeofday(&tv2, NULL); 

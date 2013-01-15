@@ -10,10 +10,10 @@ char* add_letter_to_string (char* str, char c) {
 	char *buf = NULL;
 
 	// empty string?
-	if (str) {
+	if (str != NULL) {
 		// no, it's not
 		// copy str to buf
-		len = strlen (str);
+		len = strlen (str) + 1;
 		buf = calloc (len, sizeof (char));
 		strncpy (buf, str, len);
 
@@ -21,22 +21,27 @@ char* add_letter_to_string (char* str, char c) {
 		free (str);
 		str = calloc (len + 1, sizeof (char));
 					
-		// copy bu to str
+		// copy buffer to str
 		strncpy (str, buf, len);
 
-		// and add the letter
-		strncpy (&str[len], &c, 1);
+		// add the letter
+		strncpy (&str[len-1], &c, 1);
+
+                // and the terminating byte
+                str[len] = '\0';
 
 		// free buf
 		free (buf);
 	} else {
 		// yes
 		// allocate a buffer	
-		len = 1;
-		str = calloc (len, sizeof (char));
+		str = malloc (2 * sizeof (char));
 					
-		// and add the letter
-		strncpy (str, &c, len);
+		// add the letter
+		strncpy (str, &c, 1);
+
+                // add the terminating byte
+                str[1] = '\0';
 	}
 
 	return str;
@@ -96,7 +101,7 @@ matrix* do_read_matrix_from_file (char* filename, int dimensions) {
 
             // newline?
             if (w == '\n') {
-                buf = add_letter_to_string (buf, '\0');
+                //buf = add_letter_to_string (buf, '\0');
 
                 if (first_line) {
                     // unset first_line flag
@@ -112,6 +117,10 @@ matrix* do_read_matrix_from_file (char* filename, int dimensions) {
                         fclose (fp);
                         return NULL;
                     }
+    
+                    // free buffer memory
+                    free (buf);
+                    buf = NULL;
 
                     // return just the dimensions if req'd
                     if (dimensions) {
@@ -138,8 +147,11 @@ matrix* do_read_matrix_from_file (char* filename, int dimensions) {
                     //    fclose (fp);
                     //    return NULL;
                     //}
+
+                    // free buffer memory
+                    free (buf);
+                    buf = NULL;
                 }
-                free (buf);
                 break;
             }
 
@@ -151,7 +163,7 @@ matrix* do_read_matrix_from_file (char* filename, int dimensions) {
 
             // comma signifies the end of a value
 	    if (w == ',') {
-                buf = add_letter_to_string (buf, '\0');
+                //buf = add_letter_to_string (buf, '\0');
 
                 switch (i) {
                     // row
