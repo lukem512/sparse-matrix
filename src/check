@@ -1,0 +1,4 @@
+diff <(sort ../test/set1-stage2.output) <(sort ../output/stage2.output)
+diff <(sort ../test/set1-stage3.output) <(sort ../output/stage3.output)
+diff <(sort ../test/set1-stage4.output) <(sort ../output/stage4.output)
+diff <(sort ../test/set1-stage5.output) <(sort ../output/stage5.output)
