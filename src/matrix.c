@@ -1088,7 +1088,7 @@ void stage5( char* R_name, char* X_name[], int l ) {
     gettimeofday(&tv1, NULL);
 
     // create an array of dimensions of the matrices
-    p = malloc (l * sizeof(int));
+    p = malloc ((l+1) * sizeof(int));
     
     if (p == NULL) {
         fprintf (stderr, "could not allocate memory for dimension list\n");
