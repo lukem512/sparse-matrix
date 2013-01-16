@@ -83,6 +83,7 @@ row* clone_row (row* r) {
         return NULL;
     }
 
+    // TODO - this has an invalid read of size 8
     memcpy (cloned->start, r->start, size);
 
     // return the cloned structure
@@ -363,13 +364,22 @@ void insert_row_into_matrix (matrix* m, row* r) {
     m->row_count++;
 }   
 
+// TODO - I feel this might be the issue perhaps?
 void insert_cell_into_row (row* r, cell* c) {
     cell *cur, *prev;
 
     prev = NULL;
 
+    if (c->col == 138) {
+        printf ("Inserting cell (%d, %d) into row\n", r->row, c->col);
+        print_sparse_row (r);
+    }
+    
     // start search from start or end
+    // TODO - currently this does not work, only c->col={0,1} will start at beginning
     if (c->col <= round (r->cell_count/2)) {
+        if (c->col == 138)
+            printf ("Starting from beginning\n");
         cur = r->start;
 
         if (cur != END_OF_LIST) {
@@ -415,6 +425,8 @@ void insert_cell_into_row (row* r, cell* c) {
             }
         }
     } else {
+        if (c->col == 138)
+            printf ("Starting from end\n");
         cur = r->end;
 
         if (cur != END_OF_LIST) {
@@ -431,33 +443,76 @@ void insert_cell_into_row (row* r, cell* c) {
         }
 
         if (prev == NULL) {
+            if (c->col == 138)
+                printf ("prev is NULL\n");
+            
             // Add to start of list?
             if (r->start == END_OF_LIST) {
+                if (c->col == 138)
+                    printf ("Adding to start of list\n");
+            
                 r->start = c;
             } else {
+                if (c->col == 138)
+                    printf ("Adding after %d\n", cur->col);
+            
                 c->prev = cur;
                 cur->next = c;
             }
 
+            if (c->col == 138)
+                printf ("Adding to end of list\n");
+            
             // Add to end of list
             r->end = c;
         } else {
             // Add to start of list?
             if (prev == r->start) {
+                if (c->col == 138)
+                    printf ("Adding to start of list\n");
+            
                 r->start = c;
             }
 
             // Add to end of list?
             if (cur == r->end) {
+                if (c->col == 138)
+                    printf ("Adding to end of list\n");
+            
                 cur->next = c;
                 r->end = c;
             } else {
+                // TODO - remove debugging
+                if (c->col == 138) {
+                    printf ("Adding before %d\n", prev->col);
+                    if (prev->prev != END_OF_LIST)
+                        printf ("prev->prev is %d\n", prev->prev->col);
+                    if (prev->next != END_OF_LIST)
+                        printf ("prev->next is %d\n", prev->next->col);
+                    if (cur != END_OF_LIST) {
+                        if (cur->prev != END_OF_LIST)
+                            printf ("cur->prev is %d\n", cur->prev->col);
+                        if (cur->next != END_OF_LIST)
+                            printf ("cur->next is %d\n", cur->next->col);
+                    }
+                }
+            
                 prev->prev = c;
                 c->next = prev;
+                
+                if (cur != END_OF_LIST) {
+                    cur->next = c; 
+                }
             }
 
             c->prev = cur;
         }
+    }
+
+    if (c->col == 138) {
+        printf ("Done, returning...\n");
+        print_sparse_row (r);
+        printf ("\n\n");
     }
 
     // Increment the cell counter
@@ -578,7 +633,8 @@ matrix* sum_two_matrices (matrix* m1, matrix* m2) {
     }
 
     // ensure dimensions are the same
-    // TODO - email Ian regarding printing to stdout or stderr for this!
+    // in the assignment document this says STDOUT but I believe
+    // it should be STDERR
     if (m1->rows != m2->rows || m1->cols != m2->cols) {
         fprintf (stderr, "matrix dimensions do not match, aborting\n");
         return NULL;
@@ -670,14 +726,14 @@ matrix* sum_two_matrices (matrix* m1, matrix* m2) {
             } else {
                 // r1->row < r2->row
                 // Add the whole of r1
-	        row* r = clone_row(r1);
+	        row* r = clone_row (r1);
                 insert_row_into_matrix (summed, r);
                 r1 = r1->next;
             }
         } else {
             // r1->row > r2->row
             // Add the whole of r2
-	    row* r = clone_row(r2);
+	    row* r = clone_row (r2);
             insert_row_into_matrix (summed, r);
             r2 = r2->next;
         }
@@ -685,14 +741,14 @@ matrix* sum_two_matrices (matrix* m1, matrix* m2) {
 
     while (r1 != END_OF_LIST) {
         // Add whole row from r1
-	row* r = clone_row(r1);
+	row* r = clone_row (r1);
         insert_row_into_matrix (summed, r);
         r1 = r1->next;
     }
 
     while (r2 != END_OF_LIST) {
         // Add whole row from r2
-	row* r = clone_row(r2);
+	row* r = clone_row (r2);
         insert_row_into_matrix (summed, r);
         r2 = r2->next;
     }
@@ -703,6 +759,9 @@ matrix* sum_two_matrices (matrix* m1, matrix* m2) {
 
 // Matrix product
 // Computes the product of matrices m1 and m2
+// TODO - THIS IS WRONG. PLAIN AND SIMPLE.
+// For large matrices it doesn't work properly
+// It misses LOTS of cells
 matrix* product_two_matrices (matrix* m1, matrix* m2) {
     matrix* prod;
     row *row, *prod_row;
@@ -745,7 +804,18 @@ matrix* product_two_matrices (matrix* m1, matrix* m2) {
             col_cell = col->start;
             row_cell = row->start;
 
+            if (row->row == 0 && i == 138) {
+                printf ("At %d,%d\n", row->row, i);
+                printf ("Row %d:\n", row->row);
+                print_sparse_row (row);
+                printf ("Column %d:\n", i);
+                print_ccs (col);
+            }
+
             while ((col_cell != END_OF_LIST) && (row_cell != END_OF_LIST)) {
+            if (row->row == 0 && i == 138) {
+                printf ("col_cell->row %d. row_cell->col %d\n", col_cell->row, row_cell->col);
+            }
                 if (col_cell->row <= row_cell->col) {
                     if (col_cell->row == row_cell->col) {
                         // Corresponding cells found, compute product
@@ -1023,7 +1093,7 @@ void stage3( char* R_name, char* X_name, char* Y_name ) {
     // free memory
     destroy_matrix (m1);
     destroy_matrix (m2);
-    destroy_matrix (sum);
+    destroy_matrix (sum); // TODO - this has invalid destroy_cell call
     
     // TODO - remove debugging
     gettimeofday(&tv2, NULL); 
@@ -1096,6 +1166,8 @@ void stage5( char* R_name, char* X_name[], int l ) {
     }
 
     for (int i = 0; i < l; i++) {
+        printf ("READING MATRIX %d\n", i);
+        
         // read matrix dimensions from file
         m = read_matrix_dimensions_from_file (X_name[i]);
         
