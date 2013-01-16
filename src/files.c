@@ -135,11 +135,6 @@ matrix* do_read_matrix_from_file (char* filename, int dimensions) {
                         row = create_row (rid);
                         insert_row_into_matrix (mat, row);
                     }
-        
-                    // TODO - remove me
-                    if (cid == 138)
-                        printf ("Adding cell %d, %d\n", row->row, cid);
-
 
                     // add the cell
                     // the commented code is very slow and unneccesary
