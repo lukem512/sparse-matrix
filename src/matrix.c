@@ -10,7 +10,8 @@
 #include <sys/time.h>
 
 // TODO
-// * lots of memory leaks (valgrind)
+// * memory leaks in stage3
+// * stage 5 is SLOW!
 // * redo Transpose to not use 'find' functions
 // * redo Product to not use 'find' functions
 
@@ -709,9 +710,6 @@ matrix* sum_two_matrices (matrix* m1, matrix* m2) {
 
 // Matrix product
 // Computes the product of matrices m1 and m2
-// TODO - THIS IS WRONG. PLAIN AND SIMPLE.
-// For large matrices it doesn't work properly
-// It misses LOTS of cells
 matrix* product_two_matrices (matrix* m1, matrix* m2) {
     matrix* prod;
     row *row, *prod_row;
@@ -903,6 +901,45 @@ tree_node* optimal_matrix_chain (int p[], int n) {
 
     // return the tree
     return t;
+}
+
+// Returns the product of a list of matrices
+// Computed in a naive manner
+matrix* calculate_naive_matrix_chain (char *X_name[], int l) {
+    matrix *prod, *m1, *m2;
+
+    // read first matrix from file
+    prod = read_matrix_from_file (X_name[0]);
+
+    if (prod == NULL) {
+	fprintf (stderr, "could not allocate memory for matrix, aborting.");
+        return NULL;
+    }
+
+
+    for (int i = 1; i < l; i++) {
+	// read the next matrix from its file
+        m1 = read_matrix_from_file (X_name[i]);
+
+        if (m1 == NULL) {
+	    fprintf (stderr, "could not allocate memory for matrix, aborting.");
+            destroy_matrix (prod);
+            return NULL;
+        }
+
+	// store a pointer to the old product
+        m2 = prod;
+
+	// calculate the new product
+        prod = product_two_matrices (prod, m1);
+
+	// free unused memory
+        destroy_matrix (m1);
+        destroy_matrix (m2);
+    }    
+
+    // return the product!
+    return prod;
 }
 
 // Calculates the product of a tree using DFS
