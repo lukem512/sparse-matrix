@@ -9,7 +9,8 @@
 // Used for timing
 #include <sys/time.h>
 
-#define STAGE2_READ_AND_TRANSPOSE
+#define READ_AND_TRANSPOSE
+#define NAIVE_MATRIX_CHAIN_MULTIPLICATION
 
 // TODO
 // * memory leaks in stage3
@@ -1014,7 +1015,7 @@ void stage2( char* R_name, char* X_name ) {
     gettimeofday(&tv1, NULL);
 
     // read the matrix from specified filename
-#ifdef STAGE2_READ_AND_TRANSPOSE
+#ifdef READ_AND_TRANSPOSE
     mat = read_and_transpose_matrix_from_file (X_name);
 #else
     mat = read_matrix_from_file (X_name);
@@ -1027,7 +1028,7 @@ void stage2( char* R_name, char* X_name ) {
     }
 
     // transpose
-#ifdef STAGE2_READ_AND_TRANSPOSE
+#ifdef READ_AND_TRANSPOSE
     tran = mat;
 #else
     tran = transpose_matrix (mat);
@@ -1037,7 +1038,7 @@ void stage2( char* R_name, char* X_name ) {
     write_matrix_to_file (tran, R_name);
 
     // free memory
-#ifndef STAGE2_READ_AND_TRANSPOSE
+#ifndef READ_AND_TRANSPOSE
     destroy_matrix (mat);
 #endif
     destroy_matrix (tran);
@@ -1137,14 +1138,19 @@ Perform stage 5:
 - then                     store  R in a file  named by R_name.
 */
 void stage5( char* R_name, char* X_name[], int l ) {
-    matrix *m;
-    tree_node* t;
-    int* p;
+    matrix *m;    
 
     // TODO - remove debugging
     struct timeval tv1, tv2;
     gettimeofday(&tv1, NULL);
 
+#ifdef NAIVE_MATRIX_CHAIN_MULTIPLICATION
+    // calculate the product
+    m = calculate_naive_matrix_chain (X_name, l);
+#else
+    tree_node* t;
+    int* p;
+    
     // create an array of dimensions of the matrices
     p = malloc ((l+1) * sizeof(int));
     
@@ -1182,14 +1188,17 @@ void stage5( char* R_name, char* X_name[], int l ) {
     // on the tree
     m = calculate_product_of_tree (t, X_name);
 
+    // free memory
+    destroy_tree (t);
+    free (p);
+#endif
+
     // write result to file
     write_matrix_to_file (m, R_name);
 
     // free memory
     destroy_matrix (m);
-    destroy_tree (t);
-    free (p);
-
+    
     // TODO - remove, debugging
     gettimeofday(&tv2, NULL); 
     printf ("Stage5 took %f seconds\n", (double)(tv2.tv_usec - tv1.tv_usec)/1000000 + (double)(tv2.tv_sec - tv1.tv_sec));
