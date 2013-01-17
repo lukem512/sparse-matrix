@@ -51,17 +51,22 @@ char* add_letter_to_string (char* str, char c) {
 
 // Reads the dimensions of a matrix from a file in the specified format
 matrix* read_matrix_dimensions_from_file (char* filename) {
-    return do_read_matrix_from_file (filename, 1);
+    return do_read_matrix_from_file (filename, 0, 1);
+}
+
+// Reads a matrix from a file and transposes it
+matrix* read_and_transpose_matrix_from_file (char* filename) {
+    return do_read_matrix_from_file (filename, 1, 0);
 }
 
 // Reads a matrix from a file in the specified format
 matrix* read_matrix_from_file (char* filename) {
-    return do_read_matrix_from_file (filename, 0);
+    return do_read_matrix_from_file (filename, 0, 0);
 }
 
 // Helper function: returns the matrix or just the dimensions
 // depending upon the value of the dimensions paramter (!0 for just dimensions)
-matrix* do_read_matrix_from_file (char* filename, int dimensions) {
+matrix* do_read_matrix_from_file (char* filename, int transposed, int dimensions) {
     unsigned int rows, cols;
     int end_of_file;
     char* buf;
@@ -108,7 +113,12 @@ matrix* do_read_matrix_from_file (char* filename, int dimensions) {
                     first_line = 0;
 
                     // extract the number of columns
-                    cols = atoi (buf);
+                    if (transposed) {
+                        // ... or the number of rows if we're transposing
+                        rows = atoi (buf);
+                    } else {
+                        cols = atoi (buf);
+                    }
                     
                     // create the matrix data structure
                     mat = create_matrix (rows, cols);
@@ -169,9 +179,17 @@ matrix* do_read_matrix_from_file (char* filename, int dimensions) {
                     // row
                     case 0:
                         if (first_line) {
-                            rows = atoi(buf);
+                            if (transposed) {
+                                cols = atoi (buf);
+                            } else {
+                                rows = atoi (buf);
+                            }
                         } else {
-                            rid = atoi (buf);
+                            if (transposed) {
+                                cid = atoi (buf);
+                            } else {
+                                rid = atoi (buf);
+                            }
                         }
                         free (buf);
                         buf = NULL;
@@ -184,7 +202,11 @@ matrix* do_read_matrix_from_file (char* filename, int dimensions) {
                             fclose (fp);
                             return NULL;
                         } else {
-                            cid = atoi (buf);
+                            if (transposed) {
+                                rid = atoi (buf);
+                            } else {
+                                cid = atoi (buf);
+                            }
                         }
                         free (buf);
                         buf = NULL;
