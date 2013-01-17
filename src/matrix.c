@@ -9,6 +9,8 @@
 // Used for timing
 #include <sys/time.h>
 
+#define STAGE2_READ_AND_TRANSPOSE
+
 // TODO
 // * memory leaks in stage3
 // * stage 5 is SLOW!
@@ -1010,24 +1012,34 @@ void stage2( char* R_name, char* X_name ) {
     // TODO - remove debugging
     struct timeval tv1, tv2;
     gettimeofday(&tv1, NULL);
-    
+
     // read the matrix from specified filename
+#ifdef STAGE2_READ_AND_TRANSPOSE
+    mat = read_and_transpose_matrix_from_file (X_name);
+#else
     mat = read_matrix_from_file (X_name);
+#endif
 
     // check for errors
     if (mat == NULL) {
-        fprintf (stderr, "could not read one or more input matrices\n");
+        fprintf (stderr, "could not read input matrix\n");
         return;
     }
 
     // transpose
+#ifdef STAGE2_READ_AND_TRANSPOSE
+    tran = mat;
+#else
     tran = transpose_matrix (mat);
+#endif
 
     // output to file R_name
     write_matrix_to_file (tran, R_name);
 
     // free memory
+#ifndef STAGE2_READ_AND_TRANSPOSE
     destroy_matrix (mat);
+#endif
     destroy_matrix (tran);
     
     // TODO - remove debugging
