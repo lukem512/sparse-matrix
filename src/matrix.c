@@ -15,7 +15,7 @@
 // TODO
 // * memory leaks in stage3
 // * stage 5 is SLOW!
-// * redo Transpose to not use 'find' functions
+// * - to use transpose
 // * redo Product to not use 'find' functions
 
 /* Matrix functions */
@@ -709,6 +709,13 @@ matrix* sum_two_matrices (matrix* m1, matrix* m2) {
     
     // return the new matrix
     return summed;
+}
+
+// Matrix product
+// Computes the product of a matrix m and a transposed matrix t
+matrix* product_two_matrices_transposed (matrix *m, *t) {
+    // TODO
+    return NULL;
 }
 
 // Matrix product
