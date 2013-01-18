@@ -713,9 +713,124 @@ matrix* sum_two_matrices (matrix* m1, matrix* m2) {
 
 // Matrix product
 // Computes the product of a matrix m and a transposed matrix t
-matrix* product_two_matrices_transposed (matrix *m, *t) {
-    // TODO
-    return NULL;
+// As t is transposed, the rows can be used as columns
+// TODO - test me!
+matrix* product_two_matrices_transposed (matrix *m, matrix *t) {
+    matrix* prod;
+    row *row, *col, *prod_row;
+    cell *row_cell, *col_cell, *prod_cell;
+    unsigned int total;
+
+    // ensure the product is defined for m and t
+    if (m->cols != t->cols) {
+        fprintf (stderr, "matrix product not defined for inputs, aborting\n");
+        return NULL;
+    }
+    
+    // allocate some space for the new matrix
+    prod = create_matrix (m->rows, t->rows);
+
+    if (prod == NULL) {
+        fprintf (stderr, "could not create matrix\n");
+        return NULL;
+    }
+
+    printf ("PRODUCT_TWO_MATRICES_TRANSPOSED: begin...\n");
+
+    // initialise the row pointer
+    row = m->start;
+    prod_row = prod->start;
+
+    // step through the matrices and calculate cells
+    while (row != END_OF_LIST) {
+        // initialise the col pointer
+        col = t->start;
+
+        //printf ("Row %d\n", row->row);
+
+        // create a new row
+        prod_row = create_row (row->row);
+
+        while (col != END_OF_LIST) {
+            // compute (row->row, col->row)
+            row_cell = row->start;
+            col_cell = col->start;
+
+      //      printf ("Col %d\n", col->row);
+
+            // set total to 0
+            total = 0;
+
+            // step through row and column
+            while ((row_cell != END_OF_LIST) && (col_cell != END_OF_LIST)) {
+                if (row_cell->col == col_cell->col) {
+                    // add to total
+                    total += row_cell->val * col_cell->val;
+
+    //                printf ("Total is %d\n", total);
+    
+                    col_cell = col_cell->next;
+                    row_cell = row_cell->next;
+                } else if (row_cell->col > col_cell->col) {
+                    col_cell = col_cell->next;
+                } else {
+                    row_cell = row_cell->next;
+                }
+            }
+        
+            // add cell to new matrix
+            if (total != 0) {
+                // create the cell
+                prod_cell = create_cell (col->row, total);
+
+                // add the cell to the end of the row
+                if (prod_row->end != END_OF_LIST) {
+                    prod_row->end->next = prod_cell;
+                    prod_cell->prev = prod_row->end;
+                }
+                
+                prod_row->end = prod_cell;
+
+                // add to start of row?
+                if (prod_row->start == END_OF_LIST) {
+                    prod_row->start = prod_cell;
+                }
+
+                // increment cell counter
+                prod_row->cell_count++;
+            }
+
+            // increment column
+            col = col->next;
+        }
+
+        if (prod_row->cell_count > 0) {
+            // add the row to the end of the matrix
+            if (prod->end != END_OF_LIST) {
+                prod->end->next = prod_row;
+                prod_row->prev = prod->end;
+            }
+
+            prod->end = prod_row;
+
+            // add to start of matrix?
+            if (prod->start == END_OF_LIST) {
+                prod->start = prod_row;
+            }
+
+            // increment the counters
+            prod->row_count++;
+            prod->cell_count += prod_row->cell_count;
+        } else {
+            destroy_row (prod_row);
+        }
+
+        // increment row
+        row = row->next;   
+    }
+
+    // return product
+    return prod;
 }
 
 // Matrix product
@@ -731,6 +846,7 @@ matrix* product_two_matrices (matrix* m1, matrix* m2) {
     // ensure the product is defined for m1 and m2
     if (m1->cols != m2->rows) {
         fprintf (stderr, "matrix product not defined for inputs, aborting\n");
+        return NULL;
     }
 
     // Allocate some space for the new matrix
@@ -929,7 +1045,11 @@ matrix* calculate_naive_matrix_chain (char *X_name[], int l) {
 
     for (int i = 1; i < l; i++) {
 	// read the next matrix from its file
+#ifdef READ_AND_TRANSPOSE
+        m1 = read_and_transpose_matrix_from_file (X_name[i]);
+#else
         m1 = read_matrix_from_file (X_name[i]);
+#endif
 
         if (m1 == NULL) {
 	    fprintf (stderr, "could not allocate memory for matrix, aborting.");
@@ -941,7 +1061,11 @@ matrix* calculate_naive_matrix_chain (char *X_name[], int l) {
         m2 = prod;
 
 	// calculate the new product
+#ifdef READ_AND_TRANSPOSE
+        prod = product_two_matrices_transposed (prod, m1);
+#else
         prod = product_two_matrices (prod, m1);
+#endif
 
 	// free unused memory
         destroy_matrix (m1);
@@ -953,6 +1077,7 @@ matrix* calculate_naive_matrix_chain (char *X_name[], int l) {
 }
 
 // Calculates the product of a tree using DFS
+// TODO - use transpose product
 matrix* calculate_product_of_tree (tree_node* t, char* X_name[]) {
     matrix *l, *r, *prod;
 
