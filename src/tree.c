@@ -1,3 +1,5 @@
+// Luke Mitchell <lm0466@my.bristol.ac.uk>
+// December 2012
 #include "tree.h"
 
 // Creates a tree node with specified value

@@ -1,3 +1,5 @@
+// Luke Mitchell <lm0466@my.bristol.ac.uk>
+// December 2012
 #include "2d.h"
 
 // Creates a 2D integer array int[x][y]

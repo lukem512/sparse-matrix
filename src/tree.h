@@ -1,3 +1,6 @@
+// Luke Mitchell <lm0466@my.bristol.ac.uk>
+// December 2012
+
 #ifndef __TREE_H
 #define __TREE_H
 

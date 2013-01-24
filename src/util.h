@@ -1,3 +1,6 @@
+// Luke Mitchell <lm0466@my.bristol.ac.uk>
+// December 2012
+
 #ifndef __UTIL_H
 #define __UTIL_H
 

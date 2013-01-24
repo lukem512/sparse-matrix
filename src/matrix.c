@@ -6,15 +6,9 @@
 #include "files.h"
 #include "2d.h"
 
-// Used for timing
-#include <sys/time.h>
-
 // Hash defines to modify behaviour
 #define READ_AND_TRANSPOSE
 #define NAIVE_MATRIX_CHAIN_MULTIPLICATION
-
-// TODO
-// * redo Product to not use 'find' functions
 
 /* Matrix functions */
 
@@ -382,7 +376,6 @@ void insert_cell_into_row (row* r, cell* c) {
     prev = NULL;
     
     // start search from start or end
-    // TODO - currently this does not work, only c->col={0,1} will start at beginning
     if (c->col <= round (r->cell_count/2)) {
         cur = r->start;
 
@@ -917,7 +910,6 @@ matrix* product_two_matrices (matrix* m1, matrix* m2) {
                         prod->end = prod_row;
                     }
                 } else if (prod_row->row != row->row) {
-                    // TODO - sort this out, this is very slow!
                     prod_row = find_row_by_id (prod, row->row);
 
                     if (prod_row == NULL) {
@@ -1143,10 +1135,6 @@ Perform stage 2:
 void stage2( char* R_name, char* X_name ) {
     matrix *mat, *tran;
 
-    // TODO - remove debugging
-    struct timeval tv1, tv2;
-    gettimeofday(&tv1, NULL);
-
     // read the matrix from specified filename
 #ifdef READ_AND_TRANSPOSE
     mat = read_and_transpose_matrix_from_file (X_name);
@@ -1175,10 +1163,6 @@ void stage2( char* R_name, char* X_name ) {
     destroy_matrix (mat);
 #endif
     destroy_matrix (tran);
-    
-    // TODO - remove debugging
-    gettimeofday(&tv2, NULL); 
-    printf ("Stage2 took %f seconds\n", (double)(tv2.tv_usec - tv1.tv_usec)/1000000 + (double)(tv2.tv_sec - tv1.tv_sec));
 }
 
 /*
@@ -1191,10 +1175,6 @@ Perform stage 3:
 
 void stage3( char* R_name, char* X_name, char* Y_name ) {
     matrix *m1, *m2, *sum;
-    
-    // TODO - remove debugging
-    struct timeval tv1, tv2;
-    gettimeofday(&tv1, NULL);
     
     // read the input matrices from specified filenames
     m1 = read_matrix_from_file (X_name);
@@ -1215,11 +1195,7 @@ void stage3( char* R_name, char* X_name, char* Y_name ) {
     // free memory
     destroy_matrix (m1);
     destroy_matrix (m2);
-    destroy_matrix (sum); // TODO - this has invalid destroy_cell call
-    
-    // TODO - remove debugging
-    gettimeofday(&tv2, NULL); 
-    printf ("Stage3 took %f seconds\n", (double)(tv2.tv_usec - tv1.tv_usec)/1000000 + (double)(tv2.tv_sec - tv1.tv_sec));
+    destroy_matrix (sum);
 }
 
 /*
@@ -1232,10 +1208,6 @@ Perform stage 4:
 
 void stage4( char* R_name, char* X_name, char* Y_name ) {
     matrix *m1, *m2, *prod;
-    
-    // TODO - remove debugging
-    struct timeval tv1, tv2;
-    gettimeofday(&tv1, NULL);
     
     // read the input matrices from specified filenames
     m1 = read_matrix_from_file (X_name);
@@ -1267,10 +1239,6 @@ void stage4( char* R_name, char* X_name, char* Y_name ) {
     destroy_matrix (m1);
     destroy_matrix (m2);
     destroy_matrix (prod);
-
-    // TODO - remove debugging
-    gettimeofday(&tv2, NULL); 
-    printf ("Stage4 took %f seconds\n", (double)(tv2.tv_usec - tv1.tv_usec)/1000000 + (double)(tv2.tv_sec - tv1.tv_sec));
 }
 
 /*
@@ -1282,10 +1250,6 @@ Perform stage 5:
 */
 void stage5( char* R_name, char* X_name[], int l ) {
     matrix *m;    
-
-    // TODO - remove debugging
-    struct timeval tv1, tv2;
-    gettimeofday(&tv1, NULL);
 
 #ifdef NAIVE_MATRIX_CHAIN_MULTIPLICATION
     // calculate the product
@@ -1341,10 +1305,6 @@ void stage5( char* R_name, char* X_name[], int l ) {
 
     // free memory
     destroy_matrix (m);
-    
-    // TODO - remove, debugging
-    gettimeofday(&tv2, NULL); 
-    printf ("Stage5 took %f seconds\n", (double)(tv2.tv_usec - tv1.tv_usec)/1000000 + (double)(tv2.tv_sec - tv1.tv_sec));
 }
 
 /*
