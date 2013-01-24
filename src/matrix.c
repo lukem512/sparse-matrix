@@ -73,20 +73,31 @@ row* create_row (unsigned int num) {
 // Leaving the list pointers as END_OF_LIST
 row* clone_row (row* r) {
     row* cloned;
-    unsigned int size;
+    cell *c1, *c2;
 
+    // allocate space for the row
     cloned = create_row(r->row);
-    size = sizeof(cell) * r->cell_count;
 
-    // memcpy the linked list of cells
-    cloned->start = malloc(size);
+    // add start node
+    c1 = r->start;
+    c2 = clone_cell (c1);
+    cloned->start = c2;
+    cloned->end = c2;
 
-    if (cloned->start == NULL) {
-        return NULL;
+    // add subsequent nodes
+    c1 = c1->next;
+    while (c1 != END_OF_LIST) {
+        // clone the cell
+        c2 = clone_cell (c1);
+
+        // add to end of row
+        cloned->end->next = c2;
+        c2->prev = cloned->end;
+        cloned->end = c2;
+
+        // increment pointer
+        c1 = c1->next;
     }
-
-    // TODO - this has an invalid read of size 8
-    memcpy (cloned->start, r->start, size);
 
     // return the cloned structure
     return cloned;
