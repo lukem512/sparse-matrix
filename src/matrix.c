@@ -12,7 +12,6 @@
 // Hash defines to modify behaviour
 #define READ_AND_TRANSPOSE
 #define NAIVE_MATRIX_CHAIN_MULTIPLICATION
-//#define PARALLEL_EXECUTION
 
 // TODO
 // * redo Product to not use 'find' functions
@@ -560,7 +559,7 @@ matrix* transpose_matrix (matrix* mat) {
     // create the transposed matrix structure
     newmat = create_matrix (mat->cols, mat->rows);
 
-    // TODO - QUICK AND DIRTY - TODO REDO
+    // transpose the old matrix!
     r = mat->start;
     while (r != END_OF_LIST) {
         c = r->start;
@@ -724,7 +723,6 @@ matrix* sum_two_matrices (matrix* m1, matrix* m2) {
 // Matrix product
 // Computes the product of a matrix m and a transposed matrix t
 // As t is transposed, the rows can be used as columns
-// TODO - test me!
 matrix* product_two_matrices_transposed (matrix *m, matrix *t) {
     matrix* prod;
     row *row, *col, *prod_row;
@@ -1047,7 +1045,6 @@ matrix* calculate_naive_matrix_chain (char *X_name[], int l) {
         return NULL;
     }
 
-
     for (int i = 1; i < l; i++) {
 	// read the next matrix from its file
 #ifdef READ_AND_TRANSPOSE
@@ -1082,7 +1079,6 @@ matrix* calculate_naive_matrix_chain (char *X_name[], int l) {
 }
 
 // Calculates the product of a tree using DFS
-// TODO - use transpose product
 matrix* calculate_product_of_tree (tree_node* t, char* X_name[]) {
     matrix *l, *r, *prod;
 
@@ -1306,9 +1302,6 @@ void stage5( char* R_name, char* X_name[], int l ) {
         return;
     }
 
-#ifdef PARALLEL_EXECUTION
-    #pragma omp parallel for
-#endif
     for (int i = 0; i < l; i++) {
         // read matrix dimensions from file
         m = read_matrix_dimensions_from_file (X_name[i]);

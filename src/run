@@ -7,4 +7,4 @@
 ./matrix stage5 ../output/test.output_2 ../test/test1.input ../test/test2.input
 ./matrix stage5 ../output/test.output_3 ../test/test1.input ../test/test2.input ../test/test3.input
 ./matrix stage5 ../output/test.output_4 ../test/test1.input ../test/test2.input ../test/test3.input ../test/test4.input
-./matrix stage5 ../output/test.output_8 ../test/test1.input ../test/test2.input ../test/test3.input ../test/test4.input ../test/test1.input ../test/test2.input ../test/test3.input ../test/test4.input ../output/test.output_4
+#./matrix stage5 ../output/test.output_8 ../test/test1.input ../test/test2.input ../test/test3.input ../test/test4.input ../test/test1.input ../test/test2.input ../test/test3.input ../test/test4.input ../output/test.output_4
