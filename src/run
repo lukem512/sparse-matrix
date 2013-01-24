@@ -1,5 +1,6 @@
 ./matrix stage1 ../test/set1-stage1.input 1 1
 ./matrix stage2 ../output/stage2.output ../test/set1-stage2.input
+./matrix stage2 ../output/stage2-test1.output ../test/test1.input
 ./matrix stage3 ../output/stage3.output ../test/set1-stage3.input_0 ../test/set1-stage3.input_1
 ./matrix stage4 ../output/stage4.output ../test/set1-stage4.input_0 ../test/set1-stage4.input_1
 ./matrix stage5 ../output/stage5.output ../test/set1-stage5.input_0 ../test/set1-stage5.input_1 ../test/set1-stage5.input_2 ../test/set1-stage5.input_3 ../test/set1-stage5.input_4 ../test/set1-stage5.input_5 ../test/set1-stage5.input_6 ../test/set1-stage5.input_7

@@ -9,6 +9,7 @@
 // Used for timing
 #include <sys/time.h>
 
+// Hash defines to modify behaviour
 #define READ_AND_TRANSPOSE
 #define NAIVE_MATRIX_CHAIN_MULTIPLICATION
 
@@ -1343,20 +1344,46 @@ the correct function for the requested stage.
 */
 
 int main( int argc, char* argv[] ) {
-    if     ( !strcmp( argv[ 1 ], "stage1" ) ) {
-        stage1( argv[ 2 ], atoi( argv[ 3 ] ), atoi( argv[ 4 ] ) );
-    }
-    else if( !strcmp( argv[ 1 ], "stage2" ) ) {
-        stage2( argv[ 2 ], argv[ 3 ] );
-    }
-    else if( !strcmp( argv[ 1 ], "stage3" ) ) {
-        stage3( argv[ 2 ], argv[ 3 ], argv[ 4 ] );
-    }
-    else if( !strcmp( argv[ 1 ], "stage4" ) ) {
-        stage4( argv[ 2 ], argv[ 3 ], argv[ 4 ] );
-    }
-    else if( !strcmp( argv[ 1 ], "stage5" ) ) {
-        stage5( argv[ 2 ], argv + 3, argc - 3 );
+    if (argc == 1){
+        fprintf (stderr, "please specify a stage.\n");
+    } else {
+        if ( !strcmp( argv[ 1 ], "stage1" ) ) {
+            if (argc < 4) {
+                fprintf (stderr, "usage: %s stage1 input_filename row# column#\n", argv[0]);    
+            } else {
+                stage1( argv[ 2 ], atoi( argv[ 3 ] ), atoi( argv[ 4 ] ) );
+            }
+        }
+        else if( !strcmp( argv[ 1 ], "stage2" ) ) {
+            if (argc < 3) {
+                fprintf (stderr, "usage: %s stage2 output_filename input_filename\n", argv[0]);    
+            } else {
+                stage2( argv[ 2 ], argv[ 3 ] );
+            }
+        }
+        else if( !strcmp( argv[ 1 ], "stage3" ) ) {
+            if (argc < 4) {
+                fprintf (stderr, "usage: %s stage3 output_filename input1_filename input2_filename\n", argv[0]);    
+            } else {
+                stage3( argv[ 2 ], argv[ 3 ], argv[ 4 ] );
+            }
+        }
+        else if( !strcmp( argv[ 1 ], "stage4" ) ) {
+            if (argc < 4) {
+                fprintf (stderr, "usage: %s stage4 output_filename input1_filename input2_filename\n", argv[0]);    
+            } else {
+                stage4( argv[ 2 ], argv[ 3 ], argv[ 4 ] );
+            }
+        }
+        else if( !strcmp( argv[ 1 ], "stage5" ) ) {
+            if (argc < 4) {
+                fprintf (stderr, "usage: %s stage5 output_filename input1_filename ... inputn_filename\n", argv[0]);    
+            } else {
+                stage5( argv[ 2 ], argv + 3, argc - 3 );
+            }
+        } else {
+            fprintf (stderr, "stage not recognised. please use stage1 to stage5.\n");
+        }
     }
 
     return 0;
