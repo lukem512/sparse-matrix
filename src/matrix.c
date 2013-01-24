@@ -14,7 +14,6 @@
 #define NAIVE_MATRIX_CHAIN_MULTIPLICATION
 
 // TODO
-// * memory leaks in stage3
 // * redo Product to not use 'find' functions
 
 /* Matrix functions */
