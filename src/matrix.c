@@ -12,6 +12,7 @@
 // Hash defines to modify behaviour
 #define READ_AND_TRANSPOSE
 #define NAIVE_MATRIX_CHAIN_MULTIPLICATION
+//#define PARALLEL_EXECUTION
 
 // TODO
 // * redo Product to not use 'find' functions
@@ -1042,7 +1043,7 @@ matrix* calculate_naive_matrix_chain (char *X_name[], int l) {
     prod = read_matrix_from_file (X_name[0]);
 
     if (prod == NULL) {
-	fprintf (stderr, "could not allocate memory for matrix, aborting.");
+	fprintf (stderr, "could not allocate memory for matrix, aborting.\n");
         return NULL;
     }
 
@@ -1056,7 +1057,7 @@ matrix* calculate_naive_matrix_chain (char *X_name[], int l) {
 #endif
 
         if (m1 == NULL) {
-	    fprintf (stderr, "could not allocate memory for matrix, aborting.");
+	    fprintf (stderr, "could not allocate memory for matrix, aborting.\n");
             destroy_matrix (prod);
             return NULL;
         }
@@ -1070,8 +1071,8 @@ matrix* calculate_naive_matrix_chain (char *X_name[], int l) {
 #else
         prod = product_two_matrices (prod, m1);
 #endif
-
-	// free unused memory
+	
+        // free unused memory
         destroy_matrix (m1);
         destroy_matrix (m2);
     }    
@@ -1262,7 +1263,9 @@ void stage4( char* R_name, char* X_name, char* Y_name ) {
 #endif
 
     // write result to file
-    write_matrix_to_file (prod, R_name);
+    if (prod != NULL) {
+        write_matrix_to_file (prod, R_name);
+    }
 
     // free memory
     destroy_matrix (m1);
@@ -1303,6 +1306,9 @@ void stage5( char* R_name, char* X_name[], int l ) {
         return;
     }
 
+#ifdef PARALLEL_EXECUTION
+    #pragma omp parallel for
+#endif
     for (int i = 0; i < l; i++) {
         // read matrix dimensions from file
         m = read_matrix_dimensions_from_file (X_name[i]);
