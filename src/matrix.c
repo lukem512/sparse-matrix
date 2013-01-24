@@ -14,8 +14,6 @@
 
 // TODO
 // * memory leaks in stage3
-// * stage 5 is SLOW!
-// * - to use transpose
 // * redo Product to not use 'find' functions
 
 /* Matrix functions */
@@ -735,8 +733,6 @@ matrix* product_two_matrices_transposed (matrix *m, matrix *t) {
         return NULL;
     }
 
-    printf ("PRODUCT_TWO_MATRICES_TRANSPOSED: begin...\n");
-
     // initialise the row pointer
     row = m->start;
     prod_row = prod->start;
@@ -756,8 +752,6 @@ matrix* product_two_matrices_transposed (matrix *m, matrix *t) {
             row_cell = row->start;
             col_cell = col->start;
 
-      //      printf ("Col %d\n", col->row);
-
             // set total to 0
             total = 0;
 
@@ -766,9 +760,8 @@ matrix* product_two_matrices_transposed (matrix *m, matrix *t) {
                 if (row_cell->col == col_cell->col) {
                     // add to total
                     total += row_cell->val * col_cell->val;
-
-    //                printf ("Total is %d\n", total);
-    
+                    
+                    // increment pointers
                     col_cell = col_cell->next;
                     row_cell = row_cell->next;
                 } else if (row_cell->col > col_cell->col) {
@@ -1238,7 +1231,11 @@ void stage4( char* R_name, char* X_name, char* Y_name ) {
     
     // read the input matrices from specified filenames
     m1 = read_matrix_from_file (X_name);
+#ifdef READ_AND_TRANSPOSE
+    m2 = read_and_transpose_matrix_from_file (Y_name);
+#else
     m2 = read_matrix_from_file (Y_name);
+#endif
     
     // check for errors
     if (m1 == NULL || m2 == NULL) {
@@ -1247,7 +1244,11 @@ void stage4( char* R_name, char* X_name, char* Y_name ) {
     }
 
     // calculate the product of the two matrices
+#ifdef READ_AND_TRANSPOSE
+    prod = product_two_matrices_transposed (m1, m2);
+#else
     prod = product_two_matrices (m1, m2);
+#endif
 
     // write result to file
     write_matrix_to_file (prod, R_name);
